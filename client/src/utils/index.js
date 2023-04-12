@@ -1,10 +1,10 @@
 import { surpriseMePrompts } from '../constants';
 
-export function getRAndomPrompt(prompt) {
+export function getRandomPrompt(prompt) {
   const randomIndex = Math.floor(Math.random() * surpriseMePrompts.length);
   const randomPrompt = surpriseMePrompts[randomIndex];
 
-  if (randomPrompt === prompt) return getRAndomPrompt(prompt);
+  if (randomPrompt === prompt) return getRandomPrompt(prompt);
 
   return randomPrompt;
 };
