@@ -14,16 +14,8 @@ const CreatePost = () => {
   const [form, setForm] = useState({
     name: '',
     prompt: '',
-    photo: ''
+    photo: '',
   });
-
-  const generateImage = () => {
-
-  }
-
-  const handleSubmit = () => {
-
-  }
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -32,6 +24,59 @@ const CreatePost = () => {
   const handleSurpriseMe = () => {
     const randomPrompt = getRandomPrompt(form.prompt);
     setForm({ ...form, prompt: randomPrompt });
+  };
+
+  const generateImage = async () => {
+    if (form.prompt) {
+      try {
+        setGeneratingImg(true);
+        const response = await fetch('http://localhost:8080/api/v1/dalle', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt: `${form.prompt.toString()}` }),
+        });
+
+        const data = await response.json();
+
+        setForm({ ...form, photo: `data:image/jpeg;base64,${data.photo}` });
+      } catch (error) {
+        alert(error);
+      } finally {
+        setGeneratingImg(false);
+      }
+    } else {
+      alert('Please enter a prompt');
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (form.prompt && form.photo) {
+      setLoading(true);
+
+      try {
+        const response = await fetch('http://localhost:8080/api/v1/post', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ...form })
+        });
+
+        await response.json();
+        alert('Success');
+        navigate('/');
+      } catch (error) {
+        alert(err)
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      alert('Please enter a prompt and generate an image')
+    }
   };
 
   return (
@@ -44,6 +89,7 @@ const CreatePost = () => {
           Create imaginative and visually stunning images through DALL-E AI and share them with the community
         </p>
       </div>
+
       <form
         className='mt-16 max-w-3xl'
         onSubmit={handleSubmit}
@@ -57,6 +103,7 @@ const CreatePost = () => {
             value={form.name}
             handleChange={handleChange}
           />
+
           <FormField
             labelName="Prompt"
             type="text"
@@ -116,7 +163,7 @@ const CreatePost = () => {
         </div>
       </form>
     </section>
-  )
-}
+  );
+};
 
-export default CreatePost
+export default CreatePost;
